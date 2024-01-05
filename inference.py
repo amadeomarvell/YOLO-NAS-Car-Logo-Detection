@@ -6,7 +6,7 @@ import numpy as np
 import time
 import argparse
 import os
-
+from glob import glob
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-n", "--num", type=int, required=True,
@@ -16,8 +16,8 @@ ap.add_argument("-m", "--model", type=str, default='yolo_nas_s',
                 help="Model type (eg: yolo_nas_s)")
 ap.add_argument("-w", "--weight", type=str, required=True,
                 help="path to trained model weight")
-ap.add_argument("-s", "--source", type=str, required=True,
-                help="video path/cam-id/RTSP")
+# ap.add_argument("-s", "--source", type=str, required=True,
+#                 help="video path/cam-id/RTSP")
 ap.add_argument("-c", "--conf", type=float, default=0.25,
                 help="model prediction confidence (0<conf<1)")
 ap.add_argument("--save", action='store_true',
@@ -27,7 +27,7 @@ ap.add_argument("--hide", action='store_false',
 args = vars(ap.parse_args())
 
 
-def plot_one_box(x, img, color=None, label=None, line_thickness=3):
+def plot_one_box(x, img, color=None, label=None, line_thickness=1):
     # Plots one bounding box on image img
     tl = line_thickness or round(0.002 * (img.shape[0] + img.shape[1]) / 2) + 1  # line/font thickness
     color = color or [random.randint(0, 255) for _ in range(3)]
@@ -36,6 +36,9 @@ def plot_one_box(x, img, color=None, label=None, line_thickness=3):
     if label:
         tf = max(tl - 1, 1)  # font thickness
         t_size = cv2.getTextSize(label, 0, fontScale=tl / 3, thickness=tf)[0]
+        # Reduce font size by adjusting fontScale
+        font_scale = tl / 4  # Adjust this value to further reduce the font size
+        t_size = cv2.getTextSize(label, 0, fontScale=font_scale, thickness=tf)[0]
         c2 = c1[0] + t_size[0], c1[1] - t_size[1] - 3
         cv2.rectangle(img, c1, c2, color, -1, cv2.LINE_AA)  # filled
         cv2.putText(img, label, (c1[0], c1[1] - 2), 0, tl / 3, [225, 255, 255], thickness=tf, lineType=cv2.LINE_AA)
@@ -67,107 +70,34 @@ colors = [[random.randint(0, 255) for _ in range(3)] for _ in class_names]
 global_timer = time.time()
 
 # Inference Image
-if args['source'].endswith('.jpg') or args['source'].endswith('.jpeg') or args['source'].endswith('.png'):
-    img = cv2.imread(args['source'])
+# Get the list of JPG files in the specified folder
+source_folder = '/Users/amade/OneDrive/Desktop/SKRIPSI/YOLO-NAS-Car-Logo-Detection/Car_Logo_Dataset_27_Contrasted_COCO_FINAL/test/'
+jpg_files = glob(os.path.join(source_folder, '*.jpg'))
+
+# Loop through each JPG file and perform inference
+for jpg_file in jpg_files:
+    # Inference on each image
+    img = cv2.imread(jpg_file)
+
+    # Debug: Print image shape
+    print(f"Image shape: {img.shape}")
+
     labels = get_bbox(img)
-    # Timer
-    print(f'[INFO] Completed in \033[1m{(time.time()-global_timer)/60} Minute\033[0m')
-    
-    if args['hide'] is False and len(labels)>0:
-        pre_list = [class_names[int(x)] for x in labels]
-        count_pred = {i:pre_list.count(i) for i in pre_list}
-        print(f'Prediction: {count_pred}')
-    
-    # save Image
+
+    # Debug: Print detected labels
+    print(f"Detected labels: {labels}")
+
+    # Save Image
     if args['save'] or args['hide'] is False:
         os.makedirs(os.path.join('runs', 'detect'), exist_ok=True)
-        path_save = os.path.join('runs', 'detect', os.path.split(args['source'])[1])
+        filename = os.path.split(jpg_file)[1]
+        path_save = os.path.join('runs', 'detect', filename)
         cv2.imwrite(path_save, img)
         print(f"\033[1m[INFO] Saved Image: {path_save}\033[0m")
 
-    # Hide video
-    if args['hide']:
-        cv2.namedWindow("img", cv2.WINDOW_NORMAL)
-        cv2.setWindowProperty('img', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-        cv2.imshow('img', img)
-        if cv2.waitKey(0) & 0xFF == ord('q'):
-            cv2.destroyAllWindows()
-    
-    
-# Reading Video/Cam/RTSP
-else:
-    video_path = args['source']
-    if video_path.isnumeric():
-        video_path = int(video_path)
-    cap = cv2.VideoCapture(video_path)
+        # Debug: Print a message when an image is saved
+        print(f"\033[1m[INFO] Saved Image: {path_save}\033[0m")
 
-    if args['hide'] is False:
-        length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        frame_count = 0
-
-    # Get the width and height of the video - SAVE VIDEO.
-    if args['save'] or args['hide'] is False:
-        original_video_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        original_video_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        fps = cap.get(cv2.CAP_PROP_FPS)
-
-        os.makedirs(os.path.join('runs', 'detect'), exist_ok=True)
-        if not str(video_path).isnumeric():
-            path_save = os.path.join('runs', 'detect', os.path.split(video_path)[1])
-        else:
-            c = 0
-            while True:
-                if not os.path.exists(os.path.join('runs', 'detect', f'cam{c}.mp4')):
-                    path_save = os.path.join('runs', 'detect', f'cam{c}.mp4')
-                    break
-                else:
-                    c += 1
-        out_vid = cv2.VideoWriter(path_save, 
-                            cv2.VideoWriter_fourcc(*'mp4v'),
-                            fps, (original_video_width, original_video_height))
-
-    p_time = 0
-    if args['hide']:
-        cv2.namedWindow("img", cv2.WINDOW_NORMAL)
-        cv2.setWindowProperty('img', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-    while True:
-        success, img = cap.read()
-        if not success:
-            print('[INFO] Failed to read...')
-            break
-        
-        labels = get_bbox(img)
-        if args['hide'] is False and len(labels)>0:
-            frame_count += 1
-            pre_list = [class_names[int(x)] for x in labels]
-            count_pred = {i:pre_list.count(i) for i in pre_list}
-            print(f'Frames Completed: {frame_count}/{length} Prediction: {count_pred}')
-            
-        # FPS
-        c_time = time.time()
-        fps = 1/(c_time-p_time)
-        p_time = c_time
-        cv2.putText(
-            img, f'FPS: {fps:.3}', (50, 60),
-            cv2.FONT_HERSHEY_PLAIN, 2, 
-            (0, 255, 0), 2
-        )
-
-        # Write Video
-        if args['save'] or args['hide'] is False:
-            out_vid.write(img)
-
-        # Hide video
-        if args['hide']:
-            cv2.imshow('img', img)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
 
     # Timer
-    print(f'[INFO] Completed in \033[1m{(time.time()-global_timer)/3600} Hours\033[0m')
-    cap.release()
-    if args['save'] or args['hide'] is False:
-        out_vid.release()
-        print(f"[INFO] Outout Video Saved in \033[1m{path_save}\033[0m")
-    if args['hide']:
-        cv2.destroyAllWindows()
+print(f'[INFO] Completed in \033[1m{(time.time()-global_timer)/60} Minutes\033[0m')

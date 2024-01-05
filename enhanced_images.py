@@ -3,8 +3,8 @@ import cv2
 import os
 
 # Specify the paths to the input (original) and output (enhanced) folders
-input_folder = '/Users/amade/OneDrive/Desktop/SKRIPSI/YOLOv7-Car-Logo-Detection/data/Sample/'
-output_folder = '/Users/amade/OneDrive/Desktop/SKRIPSI/YOLOv7-Car-Logo-Detection/data/enhanced_images_3/'
+input_folder = '/Users/amade/OneDrive/Desktop/SKRIPSI/YOLO-NAS-Car-Logo-Detection/Car_Logo_Dataset_27_Contrasted_COCO_FINAL/test2/'
+output_folder = '/Users/amade/OneDrive/Desktop/SKRIPSI/YOLO-NAS-Car-Logo-Detection/Car_Logo_Dataset_27_Contrasted_COCO_FINAL/test2_enhanced/'
 
 # Create the output folder if it doesn't exist
 os.makedirs(output_folder, exist_ok=True)
