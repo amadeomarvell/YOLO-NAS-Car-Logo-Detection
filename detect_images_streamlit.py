@@ -192,10 +192,18 @@ def detection_page():
             if st.sidebar.button("Perform Inference"):
                 result = inference_folder(selected_image, str(confidence))
                 data_out = result.json()
-                img = Image.open(io.BytesIO(base64.b64decode(data_out['inf_img'])))
+                # Check if detection was successful
+                if 'inf_img' in data_out:
+                    img = Image.open(io.BytesIO(base64.b64decode(data_out['inf_img'])))
 
-                # Display the image with bounding boxes
-                st.image(img, channels="BGR", caption="Processed Image", use_column_width=True)
+                    # Display the image with bounding boxes
+                    st.image(img, channels="BGR", caption="Processed Image", use_column_width=True)
+
+                    # Show success validation message
+                    st.success("Object detection succeeded!")
+                else:
+                    # Show validation message if detection failed
+                    st.warning("Object detection failed. Please try again or choose a different image.")
 
                 # Display detected labels
                 st.markdown(f'<strong class="st-cu">No logo detected because of blurred images of a car is usually a common case especially images from dashcams or traffic cams, YOLO NAS can perform detection well at a certain level of blurring</strong>', unsafe_allow_html=True)
@@ -213,10 +221,18 @@ def detection_page():
             if st.sidebar.button("Perform Inference"):
                 result = inference_folder(selected_image, str(confidence))
                 data_out = result.json()
-                img = Image.open(io.BytesIO(base64.b64decode(data_out['inf_img'])))
+                # Check if detection was successful
+                if 'inf_img' in data_out:
+                    img = Image.open(io.BytesIO(base64.b64decode(data_out['inf_img'])))
 
-                # Display the image with bounding boxes
-                st.image(img, channels="BGR", caption="Processed Image", use_column_width=True)
+                    # Display the image with bounding boxes
+                    st.image(img, channels="BGR", caption="Processed Image", use_column_width=True)
+
+                    # Show success validation message
+                    st.success("Object detection succeeded!")
+                else:
+                    # Show validation message if detection failed
+                    st.warning("Object detection failed. Please try again or choose a different image.")
 
                 # Display detected labels
                 st.markdown(f'<strong class="st-cu">YOLO NAS can detect small object better due to the architecture of the model and its DFL technique, which is very compatible for detecting car logos</strong>', unsafe_allow_html=True)
@@ -234,10 +250,18 @@ def detection_page():
             if st.sidebar.button("Perform Inference"):
                 result = inference_folder(selected_image, str(confidence))
                 data_out = result.json()
-                img = Image.open(io.BytesIO(base64.b64decode(data_out['inf_img'])))
+                # Check if detection was successful
+                if 'inf_img' in data_out:
+                    img = Image.open(io.BytesIO(base64.b64decode(data_out['inf_img'])))
 
-                # Display the image with bounding boxes
-                st.image(img, channels="BGR", caption="Processed Image", use_column_width=True)
+                    # Display the image with bounding boxes
+                    st.image(img, channels="BGR", caption="Processed Image", use_column_width=True)
+
+                    # Show success validation message
+                    st.success("Object detection succeeded!")
+                else:
+                    # Show validation message if detection failed
+                    st.warning("Object detection failed. Please try again or choose a different image.")
 
                 # Display detected labels
                 st.markdown(f'<strong class="st-cu">YOLO NAS can detect multiple logos in one image better than DETR or YOLOv7</strong>', unsafe_allow_html=True)
@@ -255,32 +279,47 @@ def detection_page():
             if st.sidebar.button("Perform Inference"):
                 result = inference_folder(selected_image, str(confidence))
                 data_out = result.json()
-                img = Image.open(io.BytesIO(base64.b64decode(data_out['inf_img'])))
+                # Check if detection was successful
+                if 'inf_img' in data_out:
+                    img = Image.open(io.BytesIO(base64.b64decode(data_out['inf_img'])))
 
-                # Display the image with bounding boxes
-                st.image(img, channels="BGR", caption="Processed Image", use_column_width=True)
+                    # Display the image with bounding boxes
+                    st.image(img, channels="BGR", caption="Processed Image", use_column_width=True)
+
+                    # Show success validation message
+                    st.success("Object detection succeeded!")
+                else:
+                    # Show validation message if detection failed
+                    st.warning("Object detection failed. Please try again or choose a different image.")
 
                 # Display detected labels
-                st.markdown(f'<strong class="st-cu">YOLO NAS can detect car logos with a difficult angle better than YOLOv7, 
-                            even though not all of the detected logos are very accurate</strong>', unsafe_allow_html=True)
+                st.markdown(f'<strong class="st-cu">YOLO NAS can detect multiple logos in one image better than DETR or YOLOv7</strong>', unsafe_allow_html=True)
         elif chosen_folder == 'Normal':
             base_folder_path = '/Users/amade/OneDrive/Desktop/SKRIPSI/YOLO-NAS-Car-Logo-Detection/Streamlit_Image_Folder/Normal/'
             
             files = os.listdir(base_folder_path)
+            selected_image = st.sidebar.selectbox("Select an image for inference", files)
+
             # Display the selected image
             selected_image_path = os.path.join(base_folder_path, selected_image)
             selected_image_display = Image.open(selected_image_path)
             st.sidebar.image(selected_image_display, caption="Selected Image", use_column_width=True)
 
-            selected_image_path = os.path.join(base_folder_path, selected_image)
-
             if st.sidebar.button("Perform Inference"):
                 result = inference_folder(selected_image, str(confidence))
                 data_out = result.json()
-                img = Image.open(io.BytesIO(base64.b64decode(data_out['inf_img'])))
+                # Check if detection was successful
+                if 'inf_img' in data_out:
+                    img = Image.open(io.BytesIO(base64.b64decode(data_out['inf_img'])))
 
-                # Display the image with bounding boxes
-                st.image(img, channels="BGR", caption="Processed Image", use_column_width=True)
+                    # Display the image with bounding boxes
+                    st.image(img, channels="BGR", caption="Processed Image", use_column_width=True)
+
+                    # Show success validation message
+                    st.success("Object detection succeeded!")
+                else:
+                    # Show validation message if detection failed
+                    st.warning("Object detection failed. Please try again or choose a different image.")
 
                 # Display detected labels
                 st.markdown(f'<p class="st-cu">This is just an example of a normal image which a YOLO-NAS model can perform car logo detection well</p>', unsafe_allow_html=True)
@@ -292,15 +331,25 @@ def detection_page():
         if uploaded_file:
             selected_image_display = Image.open(uploaded_file)
             st.sidebar.image(selected_image_display, caption="Selected Image", use_column_width=True)
+        else:
+            st.warning("Please choose an image before performing inference.")
 
         if st.button("Perform Inference"):
             if uploaded_file:
                 result = inference_input(uploaded_file, str(confidence))
                 data_out = result.json()
-                img = Image.open(io.BytesIO(base64.b64decode(data_out['inf_img'])))
+                # Check if detection was successful
+                if 'inf_img' in data_out:
+                    img = Image.open(io.BytesIO(base64.b64decode(data_out['inf_img'])))
 
-                # Display the image with bounding boxes
-                st.image(img, channels="BGR", caption="Processed Image", use_column_width=True)
+                    # Display the image with bounding boxes
+                    st.image(img, channels="BGR", caption="Processed Image", use_column_width=True)
+
+                    # Show success validation message
+                    st.success("Object detection succeeded!")
+                else:
+                    # Show validation message if detection failed
+                    st.warning("Object detection failed. Please try again or choose a different image.")
     
     st.sidebar.title("How to Use")
     st.sidebar.markdown("""
@@ -315,6 +364,7 @@ def detection_page():
 
 def contact_page():
     st.markdown("""
+        <h2 style="color: #2a4b7c; font-size: 24px;">This application is for the thesis purposes of Yohanes Amadeo Marvell - 2301862260</h2>
         <h2 style="color: #2a4b7c; font-size: 24px;">If you have any questions or feedback, feel free to contact us:</h2>
         <strong style="color: #006633;">This website is made by Yohanes Amadeo Marvell (2301862260) for thesis purposes</strong>
         <strong style="color: #006633;">Email:</strong> yohanes.marvell@binus.ac.id
